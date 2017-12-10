@@ -300,7 +300,7 @@ var color = d3.scaleLinear()
 
 var simulation = d3.forceSimulation()
     .velocityDecay(0.2)
-    .alphaDecay(0)
+    .alphaDecay(0.03)
     .force('x', d3.forceX().strength(0.015).x(center.x))
     .force('y', d3.forceY().strength(0.015).y(center.y))
     .force("collide", d3.forceCollide().radius(function (d) {
@@ -423,11 +423,13 @@ function dragstarted(d) {
     $(this).addClass("active");
     d.fx = d.x;
     d.fy = d.y;
+    simulation.alpha(1).restart();
 }
 
 function dragged(d) {
     d.fx = d3.event.x;
     d.fy = d3.event.y;
+    simulation.alpha(1).restart();
 }
 
 function dragended(d) {
@@ -435,6 +437,7 @@ function dragended(d) {
     $(this).removeClass("active");
     d.fx = null;
     d.fy = null;
+    simulation.alpha(1).restart();
 }
 
 function tick() {
