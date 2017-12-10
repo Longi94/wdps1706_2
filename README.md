@@ -2,8 +2,8 @@
 
 # Run 
 
-  - Extract twitter sentiment dataset and place it in the root directory 
-  - Extract the tensorflow model and place it inside `./output`
+  - Extract [twitter sentiment dataset](https://mega.nz/#!rA4wHRYL!-5xdygOQw7iN0yK4R950Es_hRBJ6AJcsxgPp7BaRl5k) and place it in the root directory 
+  - Extract the [tensorflow model](https://mega.nz/#!6YwVHIaS!MWuojc61cZRT2jll4i-mFYARHzM3AnUYkbYP-EnOVT8) and place it inside `./output`
 
 The result should look like: 
 ```
