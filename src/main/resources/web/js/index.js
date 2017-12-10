@@ -271,17 +271,11 @@ var currentWidth = $('#bubbles').width();
 var w = 1280,
     h = 800;
 
-var svg = d3.select("#bubbles").append("svg:svg")
+var svg = d3.select("#bubbles").append("svg")
     .attr("preserveAspectRatio", "xMidYMid")
     .attr("viewBox", "0 0 " + w + " " + h)
     .attr("width", currentWidth)
     .attr("height", currentWidth * h / w);
-
-$(window).resize(function () {
-    currentWidth = $("#bubbles").width();
-    svg.attr("width", currentWidth);
-    svg.attr("height", currentWidth * h / w);
-});
 
 function onlyUnique(value, index, self) {
     return self.indexOf(value) === index;
@@ -321,11 +315,19 @@ var selectedText = 0;
 
 initSimulation();
 
-function initSimulation() {
+function onEntityFilterChange() {
+    resetAll();
+    initSimulation();
+    initScatter();
+}
+
+function resetAll() {
     if (simulation) {
         simulation.stop();
-        $("#bubbles").find("> svg").empty();
     }
+
+    $("#bubbles").find("> svg").empty();
+    $("#scatter").find("circle").remove();
 
     selectedEntity = undefined;
     selectedText = 0;
@@ -341,7 +343,26 @@ function initSimulation() {
     $("#text-progress")
         .attr("aria-valuenow", 0)
         .css("width", 0);
+}
 
+function selectEntity() {
+    $("g").removeClass("selected");
+    $("circle").removeClass("selected");
+    $('*[value="' + selectedEntity.name + '"]').addClass("selected");
+
+    $("#entity-name").text(selectedEntity.name);
+    $("#entity-type").text(selectedEntity.type);
+    $("#entity-positive").text(selectedEntity.positive);
+    $("#entity-negative").text(selectedEntity.negative);
+    $("#entity-texts").text(selectedEntity.texts.length);
+
+    $("#text-progress")
+        .css("width", 0)
+        .attr("aria-valuenow", 0)
+        .attr("aria-valuemax", selectedEntity.texts.length - 1);
+}
+
+function initSimulation() {
     var typeFilter = $("#type-select").val();
 
     var nodes = SAMPLE_DATA
@@ -363,24 +384,17 @@ function initSimulation() {
         .data(nodes)
         .enter()
         .append("g")
+        .attr("value", function (d) {
+            return d.entity.name;
+        })
         .on("click", function (d) {
-            $("g").removeClass("selected");
-            $(this).addClass("selected");
+            if (selectedEntity !== d.entity) {
+                selectedText = 0;
+                selectedEntity = d.entity;
 
-            $("#entity-name").text(d.entity.name);
-            $("#entity-type").text(d.entity.type);
-            $("#entity-positive").text(d.entity.positive);
-            $("#entity-negative").text(d.entity.negative);
-            $("#entity-texts").text(d.entity.texts.length);
-
-            $("#text-progress")
-                .css("width", 0)
-                .attr("aria-valuenow", 0)
-                .attr("aria-valuemax", d.entity.texts.length - 1);
-
-            selectedText = 0;
-            selectedEntity = d.entity;
-            loadText();
+                selectEntity();
+                loadText();
+            }
         })
         .call(d3.drag()
             .on("start", dragstarted)
@@ -463,3 +477,78 @@ function loadText() {
         $("#text").html(str.replace(re, "<b>" + find + "</b>"));
     })
 }
+
+/* SCATTER PLOT */
+var svgScatter = d3.select("#scatter > svg")
+    .attr("width", currentWidth)
+    .attr("height", currentWidth * h / w);
+
+initScatter();
+
+var tooltip = d3.select("body").append("div")
+    .attr("class", "tooltip");
+
+function initScatter() {
+    var maxMention = SAMPLE_DATA.reduce(function (a, b) {
+        return a.texts.length >= b.texts.length ? a : b;
+    }).texts.length;
+
+    var typeFilter = $("#type-select").val();
+
+    var points = SAMPLE_DATA
+        .filter(function (value) {
+            return typeFilter === "" || value.type === typeFilter;
+        })
+        .map(function (entity) {
+            return {
+                x: (w - 80) * (entity.texts.length / maxMention) + 40,
+                y: h - ((h - 80) * entity.positive + 40),
+                entity: entity
+            };
+        });
+
+    svgScatter.selectAll("circle")
+        .data(points)
+        .enter()
+        .append("circle")
+        .attr("value", function (d) {
+            return d.entity.name;
+        })
+        .attr("cx", function (d) {
+            return d.x;
+        })
+        .attr("cy", function (d) {
+            return d.y;
+        })
+        .attr("r", 5)
+        .style("fill", function (d) {
+            return color(d.entity.positive);
+        })
+        .on("click", function (d) {
+            if (selectedEntity !== d.entity) {
+                selectedText = 0;
+                selectedEntity = d.entity;
+
+                selectEntity();
+                loadText();
+            }
+        })
+        .on("mouseover", function (d) {
+            tooltip.style("opacity", .75);
+            var $this = $(this);
+            tooltip.html(d.entity.name + "<br/>Positive: " + d.entity.positive + "<br/>Mentions: " + d.entity.texts.length)
+                .style("left", $this.position().left - 46 + "px")
+                .style("top", $this.position().top - 57 + "px");
+        })
+        .on("mouseout", function (d) {
+            tooltip.style("opacity", 0);
+        });
+}
+
+$(window).resize(function () {
+    currentWidth = $("#bubbles").width();
+    svg.attr("width", currentWidth);
+    svg.attr("height", currentWidth * h / w);
+    svgScatter.attr("width", currentWidth);
+    svgScatter.attr("height", currentWidth * h / w);
+});

@@ -19,7 +19,7 @@ select.form-control {
     background-color: lightcyan;
 }
 
-circle {
+#bubbles circle {
     stroke: #000;
     stroke-opacity: .5;
 }
@@ -28,22 +28,47 @@ circle:hover, text:hover {
     cursor: pointer;
 }
 
-g.active > circle {
-    stroke: red;
-    stroke-width: 10px;
-    stroke-opacity: 1;
+#bubbles g.active > circle {
 }
 
-g.active > text {
+#bubbles g.active > text {
     font-weight: bold;
 }
 
-g.selected > circle {
-    stroke: blue;
-    stroke-width: 10px;
-    stroke-opacity: 1;
+#bubbles g.selected > circle {
 }
 
-g.selected > text {
+#bubbles g.selected > text {
     font-weight: bold;
+}
+
+#scatter circle.selected {
+    stroke: #000;
+    stroke-width: 2px;
+}
+
+div.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 100px;
+    height: 44px;
+    padding: 2px;
+    font: 12px sans-serif;
+    background: black;
+    color: white;
+    border: 0;
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+div.tooltip:before {
+    content:"";
+    position: absolute;
+    top: 100%;
+    left: 38px;
+    width: 0;
+    height: 0;
+    border-left: 12px solid transparent;
+    border-top: 12px solid black;
+    border-right: 12px solid transparent;
 }
