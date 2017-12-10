@@ -4,10 +4,16 @@
     <meta charset="UTF-8">
     <title>WDPS1706</title>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js"
+            integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh"
+            crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css"
+          integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"
+            integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ"
+            crossorigin="anonymous"></script>
 
     <script src="https://d3js.org/d3.v4.js"></script>
 
@@ -16,19 +22,28 @@
 <body>
 <div class="container">
     <div id="bubbles"></div>
-    <div>
-        <div class="form-group">
-            <label for="type-select">Entity type</label>
-            <select class="form-control" id="type-select" onchange="initSimulation()">
-                <option value="">All</option>
-            </select>
-        </div>
-        <div class="btn-group" data-toggle="buttons">
-            <button type="button" class="btn btn-primary" onclick="previousText()">Previous</button>
-            <button type="button" class="btn btn-primary" onclick="nextText()">Next</button>
-        </div>
-        <div id="text"></div>
+    <div class="form-group">
+        <label for="type-select">Entity type</label>
+        <select class="form-control" id="type-select" onchange="initSimulation()">
+            <option value="">All</option>
+        </select>
     </div>
+    <div>
+        <h3>Entity details</h3>
+        Name: <span id="entity-name">-</span><br>
+        Type: <span id="entity-type">-</span><br>
+        Average positive score: <span id="entity-positive">-</span><br>
+        Average negative score: <span id="entity-negative">-</span><br>
+        Number of texts mentioning: <span id="entity-texts">-</span>
+    </div>
+    <div class="btn-group" data-toggle="buttons">
+        <button type="button" class="btn btn-primary" onclick="previousText()">Previous</button>
+        <button type="button" class="btn btn-primary" onclick="nextText()">Next</button>
+    </div>
+    <div class="progress">
+        <div id="text-progress" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+    <div id="text"></div>
 </div>
 <script src="js/index.js"></script>
 </body>

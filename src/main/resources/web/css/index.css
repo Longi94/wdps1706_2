@@ -2,14 +2,21 @@ select.form-control {
     width: auto;
 }
 
+.container > div {
+    margin: 20px 0;
+}
+
+.container > div:first-child {
+    margin-top: 0;
+}
+
+.container > div:last-child {
+    margin-bottom: 0;
+}
+
 #bubbles {
     width: 100%;
     background-color: lightcyan;
-    margin-bottom: 20px;
-}
-
-#text {
-    margin: 20px 0;
 }
 
 circle {

@@ -332,6 +332,16 @@ function initSimulation() {
 
     $("#text").empty();
 
+    $("#entity-name").text("-");
+    $("#entity-type").text("-");
+    $("#entity-positive").text("-");
+    $("#entity-negative").text("-");
+    $("#entity-texts").text("-");
+
+    $("#text-progress")
+        .attr("aria-valuenow", 0)
+        .css("width", 0);
+
     var typeFilter = $("#type-select").val();
 
     var nodes = SAMPLE_DATA
@@ -356,6 +366,17 @@ function initSimulation() {
         .on("click", function (d) {
             $("g").removeClass("selected");
             $(this).addClass("selected");
+
+            $("#entity-name").text(d.entity.name);
+            $("#entity-type").text(d.entity.type);
+            $("#entity-positive").text(d.entity.positive);
+            $("#entity-negative").text(d.entity.negative);
+            $("#entity-texts").text(d.entity.texts.length);
+
+            $("#text-progress")
+                .css("width", 0)
+                .attr("aria-valuenow", 0)
+                .attr("aria-valuemax", d.entity.texts.length - 1);
 
             selectedText = 0;
             selectedEntity = d.entity;
@@ -421,14 +442,16 @@ function tick() {
 
 function nextText() {
     if (selectedEntity && selectedText < selectedEntity.texts.length - 1) {
-        selectedText++;
+        $("#text-progress").attr("aria-valuenow", ++selectedText)
+            .css("width", (selectedText / selectedEntity.texts.length * 100) + "%");
         loadText();
     }
 }
 
 function previousText() {
     if (selectedEntity && selectedText > 0) {
-        selectedText--;
+        $("#text-progress").attr("aria-valuenow", --selectedText)
+            .css("width", (selectedText / selectedEntity.texts.length * 100) + "%");
         loadText();
     }
 }
