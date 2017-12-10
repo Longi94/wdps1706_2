@@ -2,6 +2,7 @@ package nl.vu.wdps1706.webapp;
 
 import nl.vu.wdps1706.webapp.entity.Text;
 import nl.vu.wdps1706.webapp.repository.TextRepository;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,7 @@ public class WebappApplication implements CommandLineRunner {
 
                     Text text = new Text();
                     text.setId(split[0]);
-                    text.setText(split[1]);
+                    text.setText(StringEscapeUtils.unescapeCsv(split[1]));
 
                     textRepository.save(text);
                     count.getAndIncrement();
