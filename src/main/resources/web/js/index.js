@@ -1,3 +1,4 @@
+// TODO replace with real data
 const SAMPLE_DATA = [
     {
         name: "Donald Trump",
@@ -267,34 +268,8 @@ const SAMPLE_DATA = [
 ];
 
 var currentWidth = $('#bubbles').width();
-
 var w = 1280,
     h = 800;
-
-var nodes = SAMPLE_DATA.map(function (entity) {
-        return {
-            x: Math.random() * w,
-            y: Math.random() * h,
-            entity: entity
-        };
-    }),
-    color = d3.scaleLinear()
-        .domain([0, 1])
-        .range(["red", "lime"])
-        .interpolate(d3.interpolateHcl);
-
-var center = {x: currentWidth / 2, y: (currentWidth * h / w) / 2};
-
-var simulation = d3.forceSimulation()
-    .velocityDecay(0.2)
-    .alphaDecay(0)
-    .force('x', d3.forceX().strength(0.002).x(center.x))
-    .force('y', d3.forceY().strength(0.002).y(center.y))
-    .force("collide", d3.forceCollide().radius(function (d) {
-        return d.entity.texts.length;
-    }).iterations(2))
-    .nodes(nodes)
-    .on("tick", tick);
 
 var svg = d3.select("#bubbles").append("svg:svg")
     .attr("preserveAspectRatio", "xMidYMid")
@@ -308,41 +283,105 @@ $(window).resize(function () {
     svg.attr("height", currentWidth * h / w);
 });
 
+function onlyUnique(value, index, self) {
+    return self.indexOf(value) === index;
+}
+
+var types = SAMPLE_DATA.map(function (value) {
+    return value.type;
+}).filter(onlyUnique);
+
+types.sort();
+
+for (var i = 0; i < types.length; i++) {
+    $("#type-select").append("<option value='" + types[i] + "'>" + types[i] + "</option>");
+}
+
+var center = {x: currentWidth / 2, y: (currentWidth * h / w) / 2};
+
+var color = d3.scaleLinear()
+    .domain([0, 1])
+    .range(["red", "lime"])
+    .interpolate(d3.interpolateHcl);
+
+var simulation = d3.forceSimulation()
+    .velocityDecay(0.2)
+    .alphaDecay(0)
+    .force('x', d3.forceX().strength(0.015).x(center.x))
+    .force('y', d3.forceY().strength(0.015).y(center.y))
+    .force("collide", d3.forceCollide().radius(function (d) {
+        return d.entity.texts.length;
+    }).iterations(2))
+    .on("tick", tick);
+
+simulation.stop();
+
 var selectedEntity;
 var selectedText = 0;
 
-var gEnter = svg.selectAll("g")
-    .data(nodes)
-    .enter()
-    .append("g")
-    .on("click", function (d) {
-        $("g").removeClass("selected");
-        $(this).addClass("selected");
+initSimulation();
 
-        selectedText = 0;
-        selectedEntity = d.entity;
-        loadText();
-    })
-    .call(d3.drag()
-        .on("start", dragstarted)
-        .on("drag", dragged)
-        .on("end", dragended)
-    );
+function initSimulation() {
+    if (simulation) {
+        simulation.stop();
+        $("#bubbles").find("> svg").empty();
+    }
 
-gEnter.append("circle")
-    .attr("r", function (d) {
-        return d.entity.texts.length;
-    })
-    .style("fill", function (d) {
-        return color(d.entity.positive);
-    });
+    selectedEntity = undefined;
+    selectedText = 0;
 
-gEnter.append("text")
-    .text(function (d) {
-        return d.entity.name;
-    })
-    .style("text-anchor", "middle")
-    .style("font-size", "25");
+    $("#text").empty();
+
+    var typeFilter = $("#type-select").val();
+
+    var nodes = SAMPLE_DATA
+        .filter(function (value) {
+            return typeFilter === "" || value.type === typeFilter;
+        })
+        .map(function (entity) {
+            return {
+                x: Math.random() * w,
+                y: Math.random() * h,
+                entity: entity
+            };
+        });
+
+    simulation.nodes(nodes);
+    simulation.restart();
+
+    var gEnter = svg.selectAll("g")
+        .data(nodes)
+        .enter()
+        .append("g")
+        .on("click", function (d) {
+            $("g").removeClass("selected");
+            $(this).addClass("selected");
+
+            selectedText = 0;
+            selectedEntity = d.entity;
+            loadText();
+        })
+        .call(d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended)
+        );
+
+    gEnter.append("circle")
+        .attr("r", function (d) {
+            return d.entity.texts.length;
+        })
+        .style("fill", function (d) {
+            return color(d.entity.positive);
+        });
+
+    gEnter.append("text")
+        .text(function (d) {
+            return d.entity.name;
+        })
+        .style("text-anchor", "middle")
+        .style("font-size", "25");
+}
 
 function dragstarted(d) {
     d.drag = true;

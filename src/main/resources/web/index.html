@@ -17,6 +17,12 @@
 <div class="container">
     <div id="bubbles"></div>
     <div>
+        <div class="form-group">
+            <label for="type-select">Entity type</label>
+            <select class="form-control" id="type-select" onchange="initSimulation()">
+                <option value="">All</option>
+            </select>
+        </div>
         <div class="btn-group" data-toggle="buttons">
             <button type="button" class="btn btn-primary" onclick="previousText()">Previous</button>
             <button type="button" class="btn btn-primary" onclick="nextText()">Next</button>

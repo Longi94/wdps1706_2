@@ -1,3 +1,7 @@
+select.form-control {
+    width: auto;
+}
+
 #bubbles {
     width: 100%;
     background-color: lightcyan;
@@ -13,7 +17,7 @@ circle {
     stroke-opacity: .5;
 }
 
-circle:hover {
+circle:hover, text:hover {
     cursor: pointer;
 }
 
