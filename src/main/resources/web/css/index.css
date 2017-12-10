@@ -11,3 +11,13 @@ circle {
 circle:hover {
     cursor: pointer;
 }
+
+g.active > circle {
+    stroke: red;
+    stroke-width: 10px;
+    stroke-opacity: 1;
+}
+
+g.active > text {
+    font-weight: bold;
+}
