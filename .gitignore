@@ -2,10 +2,13 @@
 ### Java template
 # Compiled class file
 *.class
-
+output
+twitter-sentiment-dataset
+.settings
+*.pyc
 # Log file
 *.log
-
+.project
 # BlueJ files
 *.ctxt
 

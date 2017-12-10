@@ -12,7 +12,7 @@ import os, time, data_helpers, sys
 tf.flags.DEFINE_boolean("train", False, "Should the network perform training? (default: False)")
 tf.flags.DEFINE_boolean("save", False, "Save session checkpoints (default: False)")
 tf.flags.DEFINE_boolean("evaluate_batch", False, "Print the network output on a batch from the dataset (for debugging/educational purposes")
-tf.flags.DEFINE_string("load", 'run20171209-172729', "Restore the given session if it exists (Pass the name of the session folder: runYYYMMDD-hhmmss)")
+tf.flags.DEFINE_string("load", 'model', "Restore the given session if it exists (Pass the name of the session folder: runYYYMMDD-hhmmss)")
 tf.flags.DEFINE_string("custom_input", "", "The program will print the network output for the given input string.")
 tf.flags.DEFINE_string("filter_sizes", "3,4,5", "Comma-separated filter sizes for the convolution layer (default: '3,4,5')")
 tf.flags.DEFINE_integer("reduced_dataset", 1, "Use 1/[REDUCED_DATASET]-th of the dataset to reduce memory usage (default: 1; uses all dataset)")
@@ -40,18 +40,6 @@ def _init(modelPath):
     global dropout_keep_prob
     global vocabulary
     global x
-    ### File paths ###
-    OUT_DIR = os.path.abspath(os.path.join(os.path.curdir, "output"))
-    RUN_DIR = os.path.abspath(os.path.join(OUT_DIR, FLAGS.load))
-    should_load = os.path.exists(RUN_DIR)
-    if should_load and FLAGS.load != '':
-        CHECKPOINT_FILE_PATH = os.path.abspath(os.path.join(RUN_DIR, 'checkpoint.ckpt'))
-    else:
-        if FLAGS.load != '':
-            print_red(' '.join(['Folder', FLAGS.load, 'not found.']))
-        RUN_DIR = os.path.abspath(os.path.join(OUT_DIR, time.strftime('run%Y%m%d-%H%M%S')))
-        CHECKPOINT_FILE_PATH = os.path.abspath(os.path.join(RUN_DIR, 'checkpoint.ckpt'))
-        os.mkdir(RUN_DIR)
 
     ### Load data ###
     x, y, vocabulary, vocabulary_inv = data_helpers.load_data(100)
@@ -128,22 +116,18 @@ def _init(modelPath):
         b_out = bias_variable([num_classes], name="b_out")
         network_out = tf.nn.softmax(tf.matmul(h_drop, W_out) + b_out)  # Network output
 
-    # Init session
-    if should_load and FLAGS.load != '':
-        log("Data processing OK, loading network...")
-        saver = tf.train.Saver()
-        tf.train.import_meta_graph(modelPath + 'ckpt.ckpt.meta')
-        try:
-            saver.restore(sess, modelPath + 'ckpt.ckpt')
-        except:
-            log('##############################################################################')
-            log("Couldn't restore the session properly, falling back to default initialization.")
-            log('##############################################################################')
-            sess.run(tf.global_variables_initializer())
-    else:
-        log("Data processing OK, creating network...")
-        sess.run(tf.initialize_all_variables())
-
+    # Init tf session
+    log("Data processing OK, loading network...")
+    saver = tf.train.Saver()
+    tf.train.import_meta_graph(modelPath + 'ckpt.ckpt.meta')
+    try:
+        saver.restore(sess, modelPath + 'ckpt.ckpt')
+    except:
+        log('##############################################################################')
+        log("Couldn't restore the session properly, falling back to default initialization.")
+        log('##############################################################################')
+        sess.run(tf.global_variables_initializer())
+    
 
 def _predict(sentence):
     """
@@ -183,5 +167,6 @@ def bias_variable(shape, name):
 
 
 if __name__ == "__main__":
-    _init()
+    # should be the name of the folfer containing tf model in output folder 
+    _init("./output/model/")
     _predict("Trump is a bad man")
