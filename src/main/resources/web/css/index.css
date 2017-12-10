@@ -1,0 +1,13 @@
+#bubbles {
+    width: 100%;
+    background-color: lightcyan;
+}
+
+circle {
+    stroke: #000;
+    stroke-opacity: .5;
+}
+
+circle:hover {
+    cursor: pointer;
+}
