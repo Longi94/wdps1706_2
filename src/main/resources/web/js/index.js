@@ -308,11 +308,20 @@ $(window).resize(function () {
     svg.attr("height", currentWidth * h / w);
 });
 
+var selectedEntity;
+var selectedText = 0;
+
 var gEnter = svg.selectAll("g")
     .data(nodes)
     .enter()
     .append("g")
     .on("click", function (d) {
+        $("g").removeClass("selected");
+        $(this).addClass("selected");
+
+        selectedText = 0;
+        selectedEntity = d.entity;
+        loadText();
     })
     .call(d3.drag()
         .on("start", dragstarted)
@@ -369,4 +378,26 @@ function tick() {
         .attr("y", function (d) {
             return d.y;
         });
+}
+
+function nextText() {
+    if (selectedEntity && selectedText < selectedEntity.texts.length - 1) {
+        selectedText++;
+        loadText();
+    }
+}
+
+function previousText() {
+    if (selectedEntity && selectedText > 0) {
+        selectedText--;
+        loadText();
+    }
+}
+
+function loadText() {
+    $.get('http://localhost:8080/text', {id: selectedEntity.texts[selectedText]}, function (str) {
+        var find = selectedEntity.name;
+        var re = new RegExp(find, 'g');
+        $("#text").html(str.replace(re, "<b>" + find + "</b>"));
+    })
 }

@@ -1,6 +1,11 @@
 #bubbles {
     width: 100%;
     background-color: lightcyan;
+    margin-bottom: 20px;
+}
+
+#text {
+    margin: 20px 0;
 }
 
 circle {
@@ -19,5 +24,15 @@ g.active > circle {
 }
 
 g.active > text {
+    font-weight: bold;
+}
+
+g.selected > circle {
+    stroke: blue;
+    stroke-width: 10px;
+    stroke-opacity: 1;
+}
+
+g.selected > text {
     font-weight: bold;
 }
