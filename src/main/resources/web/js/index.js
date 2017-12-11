@@ -304,7 +304,7 @@ var simulation = d3.forceSimulation()
     .force('x', d3.forceX().strength(0.015).x(center.x))
     .force('y', d3.forceY().strength(0.015).y(center.y))
     .force("collide", d3.forceCollide().radius(function (d) {
-        return d.entity.texts.length;
+        return d.r;
     }).iterations(2))
     .on("tick", tick);
 
@@ -319,6 +319,7 @@ function onEntityFilterChange() {
     resetAll();
     initSimulation();
     initScatter();
+    simulation.alpha(1).restart();
 }
 
 function resetAll() {
@@ -365,6 +366,14 @@ function selectEntity() {
 function initSimulation() {
     var typeFilter = $("#type-select").val();
 
+    var maxMention = SAMPLE_DATA.reduce(function (a, b) {
+        return a.texts.length >= b.texts.length ? a : b;
+    }).texts.length;
+
+    var logScale = d3.scaleLog()
+        .domain([1, maxMention])
+        .range([0, 50]);
+
     var nodes = SAMPLE_DATA
         .filter(function (value) {
             return typeFilter === "" || value.type === typeFilter;
@@ -373,12 +382,13 @@ function initSimulation() {
             return {
                 x: Math.random() * w,
                 y: Math.random() * h,
-                entity: entity
+                entity: entity,
+                r: logScale(entity.texts.length)
             };
         });
 
     simulation.nodes(nodes);
-    simulation.restart();
+    simulation.alpha(1).restart();
 
     var gEnter = svg.selectAll("g")
         .data(nodes)
@@ -404,7 +414,7 @@ function initSimulation() {
 
     gEnter.append("circle")
         .attr("r", function (d) {
-            return d.entity.texts.length;
+            return d.r;
         })
         .style("fill", function (d) {
             return color(d.entity.positive);
@@ -415,7 +425,7 @@ function initSimulation() {
             return d.entity.name;
         })
         .style("text-anchor", "middle")
-        .style("font-size", "25");
+        .style("font-size", "12");
 }
 
 function dragstarted(d) {
@@ -496,6 +506,10 @@ function initScatter() {
         return a.texts.length >= b.texts.length ? a : b;
     }).texts.length;
 
+    var logScale = d3.scaleLog()
+        .domain([1, maxMention])
+        .range([40, w - 40]);
+
     var typeFilter = $("#type-select").val();
 
     var points = SAMPLE_DATA
@@ -504,7 +518,7 @@ function initScatter() {
         })
         .map(function (entity) {
             return {
-                x: (w - 80) * (entity.texts.length / maxMention) + 40,
+                x: logScale(entity.texts.length),
                 y: h - ((h - 80) * entity.positive + 40),
                 entity: entity
             };
@@ -538,10 +552,10 @@ function initScatter() {
         })
         .on("mouseover", function (d) {
             tooltip.style("opacity", .75);
-            var $this = $(this);
+            var position = $(this).position();
             tooltip.html(d.entity.name + "<br/>Positive: " + d.entity.positive + "<br/>Mentions: " + d.entity.texts.length)
-                .style("left", $this.position().left - 46 + "px")
-                .style("top", $this.position().top - 57 + "px");
+                .style("left", position.left - 46 + "px")
+                .style("top", position.top - 57 + "px");
         })
         .on("mouseout", function (d) {
             tooltip.style("opacity", 0);
