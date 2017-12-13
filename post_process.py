@@ -24,15 +24,17 @@ with open(sys.argv[1], 'r') as file:
             continue
 
         for val in entity['values']:
+            if 'skip' in val and val['skip']:
+                continue
+
             name = entity['name'].upper()
             type = val['type']
 
             if (name, type) not in result:
                 result[name, type] = {'a': name, 't': type, 'p': [], 'n': [], 'x': [], 'i': [], 'l': []}
 
-            pos_val = round(random.uniform(0, 1), 5)
-            result[name, type]['p'].append(pos_val)
-            result[name, type]['n'].append(round(1 - pos_val, 5))
+            result[name, type]['p'].append(round(float(val['positive']), 5))
+            result[name, type]['n'].append(round(float(val['negative']), 5))
             result[name, type]['x'].append(string.replace(string.replace(val['id'], '<urn:uuid:', '', 1), '>', '', 1))
             result[name, type]['i'].append(val['index'])
             result[name, type]['l'].append(val['length'])

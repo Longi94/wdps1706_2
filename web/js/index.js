@@ -298,13 +298,15 @@ function initScatter() {
 
     var typeFilter = $("#type-select").val();
 
+    var rng = new Math.seedrandom('wdps1706');
+
     var points = data
         .filter(function (value) {
             return typeFilter === "" || value.type === typeFilter;
         })
         .map(function (entity) {
             return {
-                x: logScale(entity.texts.length),
+                x: logScale(entity.texts.length) + rng() * (logScale(entity.texts.length + 1) - logScale(entity.texts.length)),
                 y: h - ((h - 80) * entity.positive + 40),
                 entity: entity
             };
@@ -323,7 +325,7 @@ function initScatter() {
         .attr("cy", function (d) {
             return d.y;
         })
-        .attr("r", 5)
+        .attr("r", 3)
         .style("fill", function (d) {
             return color(d.entity.positive);
         })
