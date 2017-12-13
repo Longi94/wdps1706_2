@@ -236,7 +236,7 @@ function previousText() {
 }
 
 function loadText() {
-    $.get('http://localhost:8080/text', {id: '<urn:uuid:' + selectedEntity.texts[selectedText] + '>'}, function (str) {
+    $.get('text/' + selectedEntity.texts[selectedText], function (str) {
 
         var sentencesDict = {};
 
