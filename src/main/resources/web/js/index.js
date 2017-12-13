@@ -10,8 +10,6 @@ var svg = d3.select("#bubbles").append("svg")
 
 var data = [];
 
-var center = {x: currentWidth / 2, y: (currentWidth * h / w) / 2};
-
 var color = d3.scaleLinear()
     .domain([0, 1])
     .range(["red", "lime"])
@@ -20,11 +18,11 @@ var color = d3.scaleLinear()
 var simulation = d3.forceSimulation()
     .velocityDecay(0.2)
     .alphaDecay(0.03)
-    .force('x', d3.forceX().strength(0.015).x(center.x))
-    .force('y', d3.forceY().strength(0.015).y(center.y))
+    .force('x', d3.forceX().strength(0.015).x(w / 2))
+    .force('y', d3.forceY().strength(0.015).y(h / 2))
     .force("collide", d3.forceCollide().radius(function (d) {
         return d.r;
-    }).iterations(2))
+    }).iterations(1))
     .on("tick", tick);
 
 simulation.stop();
@@ -33,8 +31,9 @@ var selectedEntity;
 var selectedText = 0;
 
 $.get("json/data.json", function (result) {
+
     var types = result.map(function (value) {
-        return value.type;
+        return value.t;
     }).filter(function (value, index, self) {
         return self.indexOf(value) === index;
     });
@@ -42,10 +41,25 @@ $.get("json/data.json", function (result) {
     types.sort();
 
     for (var i = 0; i < types.length; i++) {
-        $("#type-select").append("<option value='" + types[i] + "'>" + types[i] + "</option>");
+        $("#type-select").append("<option value='" + types[i] + "'>" + types[i] + " " + result.filter(function (entity) {
+            return entity.t === types[i];
+        }).length + "</option>");
     }
 
-    data = result;
+    data = result.map(function (entity) {
+        return {
+            name: entity.a,
+            positive: entity.p,
+            negative: entity.n,
+            texts: entity.x.filter(function (value, index, self) {
+                return self.indexOf(value) === index;
+            }),
+            textAll: entity.x,
+            type: entity.t,
+            indices: entity.i,
+            lengths: entity.l
+        }
+    });
 
     initSimulation();
     initScatter();
@@ -114,7 +128,7 @@ function initSimulation() {
 
     var nodes = data
         .filter(function (value) {
-            return typeFilter === "" || value.type === typeFilter;
+            return (typeFilter === "" || value.type === typeFilter) && value.texts.length > 3;
         })
         .map(function (entity) {
             return {
@@ -222,7 +236,33 @@ function previousText() {
 }
 
 function loadText() {
-    $.get('http://localhost:8080/text', {id: selectedEntity.texts[selectedText]}, function (str) {
+    $.get('http://localhost:8080/text', {id: '<urn:uuid:' + selectedEntity.texts[selectedText] + '>'}, function (str) {
+
+        var sentencesDict = {};
+
+        for (var i = 0; i < selectedEntity.textAll.length; i++) {
+            if (selectedEntity.textAll[i] === selectedEntity.texts[selectedText]) {
+                sentencesDict[selectedEntity.indices[i]] = selectedEntity.lengths[i]
+            }
+        }
+
+        var sentences = [];
+        for (var key in sentencesDict) {
+            sentences.push({
+                index: parseInt(key),
+                length: sentencesDict[key]
+            })
+        }
+
+        sentences.sort(function(a, b){
+            return b.index - a.index;
+        });
+
+        for (var i = sentences.length - 1; i >= 0; i--) {
+            str = str.slice(0, sentences[i].index) + "<span>" + str.slice(sentences[i].index, sentences[i].index + sentences[i].length)
+                + "</span>" + str.slice(sentences[i].index + sentences[i].length)
+        }
+
         var find = selectedEntity.name;
         var re = new RegExp(find, 'g');
         $("#text").html(str.replace(re, "<b>" + find + "</b>"));
