@@ -209,17 +209,17 @@ function dragended(d) {
 function tick() {
     svg.selectAll("circle")
         .attr("cx", function (d) {
-            return d.x;
+            return d.x = Math.max(d.r, Math.min(w - d.r, d.x));
         })
         .attr("cy", function (d) {
-            return d.y;
+            return d.y = Math.max(d.r, Math.min(h - d.r, d.y));
         });
     svg.selectAll("text")
         .attr("x", function (d) {
-            return d.x;
+            return d.x = Math.max(d.r, Math.min(w - d.r, d.x));
         })
         .attr("y", function (d) {
-            return d.y;
+            return d.y = Math.max(d.r, Math.min(h - d.r, d.y));
         });
 }
 
@@ -268,7 +268,7 @@ function loadText() {
         });
 
         var find = selectedEntity.name;
-        var re = new RegExp(find, 'g');
+        var re = new RegExp(find, 'gi');
 
         for (i = 0; i < sentences.length; i++) {
             str = str.slice(0, sentences[i].index) + "<span style='border-bottom: 2px solid " + sentences[i].color + "'>" +
@@ -339,7 +339,7 @@ function initScatter() {
         .on("mouseover", function (d) {
             tooltip.style("opacity", .75);
             var position = $(this).position();
-            tooltip.html(d.entity.name + "<br/>Positive: " + d.entity.positive + "<br/>Mentions: " + d.entity.texts.length)
+            tooltip.html(d.entity.name + "<br/>Score: " + d.entity.positive + "<br/>Texts: " + d.entity.texts.length)
                 .style("left", position.left - 46 + "px")
                 .style("top", position.top - 57 + "px");
         })
