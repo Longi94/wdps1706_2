@@ -20,6 +20,8 @@ public class ONLP_Core {
 
 			ONLP_SentenceDetails sentenceWrapper = new ONLP_SentenceDetails();
 			sentenceWrapper.sentence = sentence;
+			sentenceWrapper.length = sentence.length();
+			sentenceWrapper.index = content.indexOf(sentence);
 
 			// #1 Tokenize
 			String[] tokens = ONLP_Tokenizer.tokenize(sentence);
