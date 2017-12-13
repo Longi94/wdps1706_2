@@ -23,24 +23,25 @@ with open(sys.argv[1], 'r') as file:
         if is_number(entity['name']) and entity['values'][0]['type'] == 'person':
             continue
 
-        if entity['name'].upper() in result:
-            new_entity = result[entity['name'].upper()]
-        else:
-            new_entity = {'a': entity['name'].upper(), 'p': [], 'n': [], 'x': [], 'i': [], 'l': []}
-
         for val in entity['values']:
+            name = entity['name'].upper()
+            type = val['type']
+
+            if (name, type) not in result:
+                result[name, type] = {'a': name, 't': type, 'p': [], 'n': [], 'x': [], 'i': [], 'l': []}
+
             pos_val = round(random.uniform(0, 1), 5)
-            new_entity['p'].append(pos_val)
-            new_entity['n'].append(round(1 - pos_val, 5))
-            new_entity['x'].append(string.replace(string.replace(val['id'], '<urn:uuid:', '', 1), '>', '', 1))
-            new_entity['i'].append(val['index'])
-            new_entity['l'].append(val['length'])
+            result[name, type]['p'].append(pos_val)
+            result[name, type]['n'].append(round(1 - pos_val, 5))
+            result[name, type]['x'].append(string.replace(string.replace(val['id'], '<urn:uuid:', '', 1), '>', '', 1))
+            result[name, type]['i'].append(val['index'])
+            result[name, type]['l'].append(val['length'])
 
-        new_entity['pa'] = round(sum(new_entity['p']) / float(len(new_entity['p'])), 5)
-        new_entity['na'] = round(sum(new_entity['n']) / float(len(new_entity['n'])), 5)
-        new_entity['t'] = entity['values'][0]['type']
+    values = result.values()
 
-        result[entity['name'].upper()] = new_entity
+    for val in values:
+        val['pa'] = round(sum(val['p']) / float(len(val['p'])), 5)
+        val['na'] = round(sum(val['n']) / float(len(val['n'])), 5)
 
     with open('data.json', 'w') as f:
-        json.dump(result.values(), f, separators=(',', ':'))
+        json.dump(values, f, separators=(',', ':'))
