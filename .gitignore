@@ -3,12 +3,14 @@
 # Compiled class file
 *.class
 output
+entities
 twitter-sentiment-dataset
 .settings
 *.pyc
 # Log file
 *.log
 .project
+venv
 # BlueJ files
 *.ctxt
 
