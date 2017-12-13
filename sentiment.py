@@ -33,6 +33,8 @@ def log(*string):
     print output
 
 print tf.__version__
+
+
 def _init(modelPath):
     global sess
     global data_in
@@ -42,8 +44,8 @@ def _init(modelPath):
     global x
 
     ### Load data ###
-    x, y, vocabulary, vocabulary_inv = data_helpers.load_data(100)
-    # x, y, vocabulary, vocabulary_inv = data_helpers.load_data(1)
+    # x, y, vocabulary, vocabulary_inv = data_helpers.load_data(100)
+    x, y, vocabulary, vocabulary_inv = data_helpers.load_data(1)
 
     # Randomly shuffle data
     np.random.seed(123)
@@ -128,19 +130,18 @@ def _init(modelPath):
         log('##############################################################################')
         sess.run(tf.global_variables_initializer())
     
-
 def _predict(sentence):
     """
     Translates a string to its equivalent in the integer vocabulary and feeds it to the network.
     Outputs result to stdout.
     """
-    log("Evaluating", sentence)
+    # log("Evaluating", sentence)
     x_to_eval = data_helpers.string_to_int(sentence, vocabulary, max(len(i) for i in x))
     result = sess.run(tf.argmax(network_out, 1), feed_dict={data_in: x_to_eval, dropout_keep_prob: 1.0})
     unnorm_result = sess.run(network_out, feed_dict={data_in: x_to_eval, dropout_keep_prob: 1.0})
-    network_sentiment = "POS" if result == 1 else "NEG"
-    log("Custom input evaluation:", network_sentiment)
-    log("Actual output:", str(unnorm_result[0]))
+    # network_sentiment = "POS" if result == 1 else "NEG"
+    # log("Custom input evaluation:", network_sentiment)
+    # log("Actual output:", str(unnorm_result[0]))
     return unnorm_result[0]
 
 
@@ -169,4 +170,4 @@ def bias_variable(shape, name):
 if __name__ == "__main__":
     # should be the name of the folfer containing tf model in output folder 
     _init("./output/model/")
-    _predict("Trump is a bad man")
+    _predict("")

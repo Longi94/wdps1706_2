@@ -138,7 +138,7 @@ def string_to_int(sentence, vocabulary, max_len):
         x = np.array([[vocabulary[word] for word in sentence] for sentence in padded_x_text])
         return x
     except KeyError, e:
-        print "The following word is unknown to the network: %s - Try again." % str(e)
+        # print "The following word is unknown to the network: %s - Try again." % str(e)
         quit()
 
 def load_data(reduced_dataset):
