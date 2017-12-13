@@ -22,7 +22,7 @@ var simulation = d3.forceSimulation()
     .force('y', d3.forceY().strength(0.015).y(h / 2))
     .force("collide", d3.forceCollide().radius(function (d) {
         return d.r;
-    }).iterations(1))
+    }).iterations(4))
     .on("tick", tick);
 
 simulation.stop();
