@@ -68,7 +68,7 @@ $.get("json/data.json", function (result) {
 
     $("#loading-div").hide();
 }).fail(function () {
-
+    $("#loading-div").find("span").text("Failed to load data.");
 });
 
 function onEntityFilterChange() {
@@ -268,7 +268,7 @@ function loadText() {
         });
 
         var find = selectedEntity.name;
-        var re = new RegExp(find, 'gi');
+        var re = new RegExp(escapeRegExp(find), 'gi');
 
         for (i = 0; i < sentences.length; i++) {
             str = str.slice(0, sentences[i].index) + "<span style='border-bottom: 2px solid " + sentences[i].color + "'>" +
@@ -355,3 +355,7 @@ $(window).resize(function () {
     svgScatter.attr("width", currentWidth);
     svgScatter.attr("height", currentWidth * h / w);
 });
+
+function escapeRegExp(str) {
+    return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+}
