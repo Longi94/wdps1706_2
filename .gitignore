@@ -89,3 +89,4 @@ fabric.properties
 
 /spark-data/
 /bin/
+/web/text/

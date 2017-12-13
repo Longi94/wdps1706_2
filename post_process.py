@@ -31,16 +31,17 @@ with open(sys.argv[1], 'r') as file:
         length = []
 
         for val in entity['values']:
-            pos.append(val['positive'])
-            neg.append(val['negative'])
+            pos_val = round(random.uniform(0, 1), 5)
+            pos.append(pos_val)
+            neg.append(round(1 - pos_val, 5))
             id.append(string.replace(string.replace(val['id'], '<urn:uuid:', '', 1), '>', '', 1))
             index.append(val['index'])
             length.append(val['length'])
 
-        pos_val = round(random.uniform(0, 1), 5)
-
-        new_entity['p'] = pos_val
-        new_entity['n'] = 1 - pos_val
+        new_entity['p'] = pos
+        new_entity['n'] = neg
+        new_entity['pa'] = round(sum(pos) / float(len(pos)), 5)
+        new_entity['na'] = round(sum(neg) / float(len(neg)), 5)
         new_entity['t'] = entity['values'][0]['type']
         new_entity['x'] = id
         new_entity['i'] = index

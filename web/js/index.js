@@ -49,8 +49,10 @@ $.get("json/data.json", function (result) {
     data = result.map(function (entity) {
         return {
             name: entity.a,
-            positive: entity.p,
-            negative: entity.n,
+            positive: entity.pa,
+            negative: entity.na,
+            positiveAll: entity.p,
+            negativeAll: entity.n,
             texts: entity.x.filter(function (value, index, self) {
                 return self.indexOf(value) === index;
             }),
@@ -63,6 +65,8 @@ $.get("json/data.json", function (result) {
 
     initSimulation();
     initScatter();
+
+    $("#loading-div").hide();
 }).fail(function () {
 
 });
@@ -240,9 +244,13 @@ function loadText() {
 
         var sentencesDict = {};
 
-        for (var i = 0; i < selectedEntity.textAll.length; i++) {
+        var i;
+        for (i = 0; i < selectedEntity.textAll.length; i++) {
             if (selectedEntity.textAll[i] === selectedEntity.texts[selectedText]) {
-                sentencesDict[selectedEntity.indices[i]] = selectedEntity.lengths[i]
+                sentencesDict[selectedEntity.indices[i]] = {
+                    length: selectedEntity.lengths[i],
+                    color: color(selectedEntity.positiveAll[i])
+                }
             }
         }
 
@@ -250,7 +258,8 @@ function loadText() {
         for (var key in sentencesDict) {
             sentences.push({
                 index: parseInt(key),
-                length: sentencesDict[key]
+                length: sentencesDict[key].length,
+                color: sentencesDict[key].color
             })
         }
 
@@ -258,14 +267,15 @@ function loadText() {
             return b.index - a.index;
         });
 
-        for (var i = sentences.length - 1; i >= 0; i--) {
-            str = str.slice(0, sentences[i].index) + "<span>" + str.slice(sentences[i].index, sentences[i].index + sentences[i].length)
-                + "</span>" + str.slice(sentences[i].index + sentences[i].length)
-        }
-
         var find = selectedEntity.name;
         var re = new RegExp(find, 'g');
-        $("#text").html(str.replace(re, "<b>" + find + "</b>"));
+
+        for (i = 0; i < sentences.length; i++) {
+            str = str.slice(0, sentences[i].index) + "<span style='border-bottom: 2px solid " + sentences[i].color + "'>" +
+                str.slice(sentences[i].index, sentences[i].index + sentences[i].length).replace(re, "<b>" + find + "</b>")
+                + "</span>" + str.slice(sentences[i].index + sentences[i].length)
+        }
+        $("#text").html(str);
     })
 }
 
