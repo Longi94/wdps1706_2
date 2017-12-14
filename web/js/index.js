@@ -22,7 +22,7 @@ var simulation = d3.forceSimulation()
     .force('y', d3.forceY().strength(0.015).y(h / 2))
     .force("collide", d3.forceCollide().radius(function (d) {
         return d.r;
-    }).iterations(4))
+    }).iterations(1))
     .on("tick", tick);
 
 simulation.stop();
@@ -132,7 +132,7 @@ function initSimulation() {
 
     var nodes = data
         .filter(function (value) {
-            return (typeFilter === "" || value.type === typeFilter) && value.texts.length > 3;
+            return (typeFilter === "" || value.type === typeFilter) && value.texts.length > (typeFilter === "" ? 50 : 10);
         })
         .map(function (entity) {
             return {
@@ -162,11 +162,11 @@ function initSimulation() {
                 loadText();
             }
         })
-        .call(d3.drag()
+        /*.call(d3.drag()
             .on("start", dragstarted)
             .on("drag", dragged)
             .on("end", dragended)
-        );
+        );*/
 
     gEnter.append("circle")
         .attr("r", function (d) {
@@ -189,13 +189,13 @@ function dragstarted(d) {
     $(this).addClass("active");
     d.fx = d.x;
     d.fy = d.y;
-    simulation.alpha(1).restart();
+    //simulation.alpha(1).restart();
 }
 
 function dragged(d) {
     d.fx = d3.event.x;
     d.fy = d3.event.y;
-    simulation.alpha(1).restart();
+    //simulation.alpha(1).restart();
 }
 
 function dragended(d) {
@@ -203,7 +203,7 @@ function dragended(d) {
     $(this).removeClass("active");
     d.fx = null;
     d.fy = null;
-    simulation.alpha(1).restart();
+    //simulation.alpha(1).restart();
 }
 
 function tick() {
@@ -226,7 +226,7 @@ function tick() {
 function nextText() {
     if (selectedEntity && selectedText < selectedEntity.texts.length - 1) {
         $("#text-progress").attr("aria-valuenow", ++selectedText)
-            .css("width", (selectedText / selectedEntity.texts.length * 100) + "%");
+            .css("width", (selectedText / (selectedEntity.texts.length - 1) * 100) + "%");
         loadText();
     }
 }
@@ -234,7 +234,7 @@ function nextText() {
 function previousText() {
     if (selectedEntity && selectedText > 0) {
         $("#text-progress").attr("aria-valuenow", --selectedText)
-            .css("width", (selectedText / selectedEntity.texts.length * 100) + "%");
+            .css("width", (selectedText / (selectedEntity.texts.length - 1) * 100) + "%");
         loadText();
     }
 }
@@ -342,7 +342,7 @@ function initScatter() {
             tooltip.style("opacity", .75);
             var position = $(this).position();
             tooltip.html(d.entity.name + "<br/>Score: " + d.entity.positive + "<br/>Texts: " + d.entity.texts.length)
-                .style("left", position.left - 46 + "px")
+                .style("left", position.left - 96 + "px")
                 .style("top", position.top - 57 + "px");
         })
         .on("mouseout", function (d) {
