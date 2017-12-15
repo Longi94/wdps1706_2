@@ -50,7 +50,7 @@ circle:hover, text:hover {
 div.tooltip {
     position: absolute;
     text-align: center;
-    width: 100px;
+    width: 200px;
     height: 44px;
     padding: 2px;
     font: 12px sans-serif;
@@ -65,7 +65,7 @@ div.tooltip:before {
     content:"";
     position: absolute;
     top: 100%;
-    left: 38px;
+    left: 87px;
     width: 0;
     height: 0;
     border-left: 12px solid transparent;

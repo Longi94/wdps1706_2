@@ -68,7 +68,7 @@ $.get("json/data.json", function (result) {
 
     $("#loading-div").hide();
 }).fail(function () {
-
+    $("#loading-div").find("span").text("Failed to load data.");
 });
 
 function onEntityFilterChange() {
@@ -132,7 +132,7 @@ function initSimulation() {
 
     var nodes = data
         .filter(function (value) {
-            return (typeFilter === "" || value.type === typeFilter) && value.texts.length > 3;
+            return (typeFilter === "" || value.type === typeFilter) && value.texts.length > (typeFilter === "" ? 50 : 10);
         })
         .map(function (entity) {
             return {
@@ -162,11 +162,11 @@ function initSimulation() {
                 loadText();
             }
         })
-        .call(d3.drag()
+        /*.call(d3.drag()
             .on("start", dragstarted)
             .on("drag", dragged)
             .on("end", dragended)
-        );
+        );*/
 
     gEnter.append("circle")
         .attr("r", function (d) {
@@ -189,13 +189,13 @@ function dragstarted(d) {
     $(this).addClass("active");
     d.fx = d.x;
     d.fy = d.y;
-    simulation.alpha(1).restart();
+    //simulation.alpha(1).restart();
 }
 
 function dragged(d) {
     d.fx = d3.event.x;
     d.fy = d3.event.y;
-    simulation.alpha(1).restart();
+    //simulation.alpha(1).restart();
 }
 
 function dragended(d) {
@@ -203,7 +203,7 @@ function dragended(d) {
     $(this).removeClass("active");
     d.fx = null;
     d.fy = null;
-    simulation.alpha(1).restart();
+    //simulation.alpha(1).restart();
 }
 
 function tick() {
@@ -226,7 +226,7 @@ function tick() {
 function nextText() {
     if (selectedEntity && selectedText < selectedEntity.texts.length - 1) {
         $("#text-progress").attr("aria-valuenow", ++selectedText)
-            .css("width", (selectedText / selectedEntity.texts.length * 100) + "%");
+            .css("width", (selectedText / (selectedEntity.texts.length - 1) * 100) + "%");
         loadText();
     }
 }
@@ -234,7 +234,7 @@ function nextText() {
 function previousText() {
     if (selectedEntity && selectedText > 0) {
         $("#text-progress").attr("aria-valuenow", --selectedText)
-            .css("width", (selectedText / selectedEntity.texts.length * 100) + "%");
+            .css("width", (selectedText / (selectedEntity.texts.length - 1) * 100) + "%");
         loadText();
     }
 }
@@ -268,7 +268,7 @@ function loadText() {
         });
 
         var find = selectedEntity.name;
-        var re = new RegExp(find, 'gi');
+        var re = new RegExp(escapeRegExp(find), 'gi');
 
         for (i = 0; i < sentences.length; i++) {
             str = str.slice(0, sentences[i].index) + "<span style='border-bottom: 2px solid " + sentences[i].color + "'>" +
@@ -298,13 +298,15 @@ function initScatter() {
 
     var typeFilter = $("#type-select").val();
 
+    var rng = new Math.seedrandom('wdps1706');
+
     var points = data
         .filter(function (value) {
             return typeFilter === "" || value.type === typeFilter;
         })
         .map(function (entity) {
             return {
-                x: logScale(entity.texts.length),
+                x: logScale(entity.texts.length) + rng() * (logScale(entity.texts.length + 1) - logScale(entity.texts.length)),
                 y: h - ((h - 80) * entity.positive + 40),
                 entity: entity
             };
@@ -323,7 +325,7 @@ function initScatter() {
         .attr("cy", function (d) {
             return d.y;
         })
-        .attr("r", 5)
+        .attr("r", 3)
         .style("fill", function (d) {
             return color(d.entity.positive);
         })
@@ -340,7 +342,7 @@ function initScatter() {
             tooltip.style("opacity", .75);
             var position = $(this).position();
             tooltip.html(d.entity.name + "<br/>Score: " + d.entity.positive + "<br/>Texts: " + d.entity.texts.length)
-                .style("left", position.left - 46 + "px")
+                .style("left", position.left - 96 + "px")
                 .style("top", position.top - 57 + "px");
         })
         .on("mouseout", function (d) {
@@ -355,3 +357,7 @@ $(window).resize(function () {
     svgScatter.attr("width", currentWidth);
     svgScatter.attr("height", currentWidth * h / w);
 });
+
+function escapeRegExp(str) {
+    return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+}

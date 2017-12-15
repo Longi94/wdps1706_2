@@ -1,7 +1,7 @@
 import json
 import sys
 import string
-import random
+import os
 
 result = {}
 
@@ -15,32 +15,43 @@ def is_number(s):
     return False
 
 
-with open(sys.argv[1], 'r') as file:
-    data = json.load(file)
+for filename in os.listdir(sys.argv[1]):
+    if not filename.endswith(".json"):
+        continue
 
-    for entity in data:
+    with open(sys.argv[1] + '\\' + filename, 'r') as file:
+        print('Processing ' + filename)
+        data = json.load(file)
 
-        if is_number(entity['name']) and entity['values'][0]['type'] == 'person':
-            continue
+        for entity in data:
 
-        if entity['name'].upper() in result:
-            new_entity = result[entity['name'].upper()]
-        else:
-            new_entity = {'a': entity['name'].upper(), 'p': [], 'n': [], 'x': [], 'i': [], 'l': []}
+            if is_number(entity['name']) and entity['values'][0]['type'] == 'person':
+                continue
 
-        for val in entity['values']:
-            pos_val = round(random.uniform(0, 1), 5)
-            new_entity['p'].append(pos_val)
-            new_entity['n'].append(round(1 - pos_val, 5))
-            new_entity['x'].append(string.replace(string.replace(val['id'], '<urn:uuid:', '', 1), '>', '', 1))
-            new_entity['i'].append(val['index'])
-            new_entity['l'].append(val['length'])
+            for val in entity['values']:
+                if 'skip' in val and val['skip']:
+                    continue
 
-        new_entity['pa'] = round(sum(new_entity['p']) / float(len(new_entity['p'])), 5)
-        new_entity['na'] = round(sum(new_entity['n']) / float(len(new_entity['n'])), 5)
-        new_entity['t'] = entity['values'][0]['type']
+                name = entity['name'].upper()
+                type = val['type']
 
-        result[entity['name'].upper()] = new_entity
+                if (name, type) not in result:
+                    result[name, type] = {'a': name, 't': type, 'p': [], 'n': [], 'x': [], 'i': [], 'l': []}
 
-    with open('data.json', 'w') as f:
-        json.dump(result.values(), f, separators=(',', ':'))
+                result[name, type]['p'].append(round(float(val['positive']), 5))
+                result[name, type]['n'].append(round(float(val['negative']), 5))
+                result[name, type]['x'].append(
+                    string.replace(string.replace(val['id'], '<urn:uuid:', '', 1), '>', '', 1))
+                result[name, type]['i'].append(val['index'])
+                result[name, type]['l'].append(val['length'])
+
+values = result.values()
+
+for val in values:
+    val['pa'] = round(sum(val['p']) / float(len(val['p'])), 5)
+    val['na'] = round(sum(val['n']) / float(len(val['n'])), 5)
+
+    del val['n']
+
+with open('data.json', 'w') as f:
+    json.dump(values, f, separators=(',', ':'))
